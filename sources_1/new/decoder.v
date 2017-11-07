@@ -31,7 +31,8 @@ module decoder(
     output op_eret,op_mfc0,op_mtc0;
     
     wire [4:0] rs,rt;
-    wire [5:0] op,nop,func;
+    wire [5:0] op,func;
+	wire nop;
     
     assign rs   = instruction[25:21];
     assign rt   = instruction[20:16];
@@ -39,7 +40,7 @@ module decoder(
     assign func = instruction[5:0];
     
     //R–Õ÷∏¡Ó
-    assign nop    =    ~op[5] & ~op[4] & ~op[3] & ~op[2] & op[1] & op[0];//000011
+    assign nop    =    ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & ~op[0];//000000
     
     assign op_add   = nop & func[5] & ~func[4] & ~func[3] & ~func[2] & ~func[1] & ~func[0];    //100000
     assign op_addu  = nop & func[5] & ~func[4] & ~func[3] & ~func[2] & ~func[1] &  func[0];    //100001
