@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2017/10/14 19:34:42
+// Create Date: 2017/11/20 18:30:46
 // Design Name: 
-// Module Name: mux2_1
+// Module Name: c
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,22 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module mux2_1(
-    in0,in1,
-    sel,
-    out
-    );
-    input wire[31:0] in0;
-    input wire[31:0] in1;
-    input wire sel;
-    
-    output reg[31:0] out;
+module c( alu_a,alu_b,and_res,or_res,nor_res,xor_res
 
-	 always @ (sel)
-	 	begin
-			case(sel)
-			2'b00:out = in0;
-			2'b01:out = in1;
-			endcase
-		end
+    );
+    input [31:0] alu_a, alu_b;
+    output wire [31:0] and_res,or_res,nor_res,xor_res;
+      assign  and_res = alu_a & alu_b;
+      assign  or_res = alu_a|alu_b;
+      assign  nor_res = ~(alu_a|alu_b);
+      assign  xor_res = alu_a^alu_b;
+    
 endmodule

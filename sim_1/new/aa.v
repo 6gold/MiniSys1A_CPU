@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2017/10/14 19:36:01
+// Create Date: 2017/11/20 18:33:09
 // Design Name: 
-// Module Name: mux4_1
+// Module Name: aa
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,28 +20,19 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module mux4_1(
-in0,in1,in2,in3,
-sel,
-out,
+module aa(
+
     );
     
-    input wire[31:0] in0;
-    input wire[31:0] in1;
-    input wire[31:0] in2;
-    input wire[31:0] in3;
-    input wire[1:0] sel;
+    reg [31:0] alu_a,alu_b;
+    wire [31:0] and_res,or_res,nor_res,xor_res;
+    c cc(.alu_a(alu_a),.alu_b(alu_b),.and_res(and_res),.or_res(or_res),
+    .nor_res(nor_res),.xor_res(xor_res));
     
-    output reg[31:0] out;
-
-	 always @ (sel)
-	 	begin
-			case(sel)
-			2'b00:out = in0;
-			2'b01:out = in1;
-			2'b10:out = in2;
-			2'b11:out = in3;
-			endcase
-		end
+    always begin
+    #10 alu_a=32'h80000010; alu_b=32'h81000000;
+    #10 alu_a=32'h30000010;alu_b=32'h41002000;
+    #10 alu_a=32'h20000010;alu_b=32'h81023000;
+    end
     
 endmodule

@@ -21,7 +21,7 @@
 
 
 module test_sim();
-    reg [31:0] alu_a = 0,alu_b = 0;
+    reg [31:0] alu_a = 32'h80000000,alu_b = 32'h00000010;
     wire [31:0] q;
 //   wire cf,of,zf;
 
@@ -146,24 +146,24 @@ module test_sim();
 //     #10 instruction = {6'b010000 ,20'b0,6'b011000};
      #10 instruction[31:26]=6'b000000;//add
          instruction[5:0]  =6'b100000;
-         alu_a = -2;
-         alu_b = 2;
+//         alu_a = 32'h800000011;
+//         alu_b = 32'h000000010;
      #10 instruction[31:26]=6'b000000;//addu
          instruction[5:0]  =6'b100001;
-         alu_a = 2;
-         alu_b = 2;
+//         alu_a = 32'h000000010;
+//         alu_b = 32'h000000010;
      #10 instruction[31:26]=6'b000000;//sub
          instruction[5:0]  =6'b100010;
-         alu_a = 0;
-         alu_b = -1;
+//         alu_a = 32'b0;
+//         alu_b = 32'h80000001;
      #10 instruction[31:26]=6'b000000;//subu
          instruction[5:0]  =6'b100011;
-         alu_a = 2;
-         alu_b = 2;
+//         alu_a = 32'h000000010;
+//         alu_b = 32'h000000010;
      #10 instruction[31:26]=6'b000000;//and
          instruction[5:0]  =6'b100100;
-         alu_a = 0;
-         alu_b = 32'hffffffff;
+//         alu_a = 32'b0;
+//         alu_b = 32'hffffffff;
 //     #10 instruction = {6'b0 ,20'b0,6'b011000};
 //     #10 instruction = {6'b0 ,20'b0,6'b011001};
 //     #10 instruction = {6'b0 ,20'b0,6'b011010};
@@ -176,36 +176,36 @@ module test_sim();
 //     #10 instruction = {6'b0 ,20'b0,6'b0};
      #10 instruction[31:26]=6'b000000;//or
          instruction[5:0]  =6'b100101;
-         alu_a = 0;
-         alu_b = 32'hffffffff;
+//         alu_a = 0;
+//         alu_b = 32'hffffffff;
      #10 instruction[31:26]=6'b000000;//xor
          instruction[5:0]  =6'b100110;
-         alu_a = 5;
-         alu_b = 2;
+//         alu_a = 5;
+//         alu_b = 2;
      #10 instruction[31:26]=6'b000000;//nor
          instruction[5:0]  =6'b100111;
-         alu_a = 5;
-         alu_b = 2;
+//         alu_a = 5;
+//         alu_b = 2;
      #10 instruction[31:26]=6'b000000;//slt
          instruction[5:0]  =6'b101010;
-         alu_a = -1;
-         alu_b = 0;
+//         alu_a = -1;
+//         alu_b = 0;
      #10 instruction[31:26]=6'b000000;//sltu
          instruction[5:0]  =6'b101011;
-         alu_a = 5;
-         alu_b = 2;
+//         alu_a = 5;
+//         alu_b = 2;
      #10 instruction[31:26]=6'b000000;//sll
          instruction[5:0]  =6'b000000;
-         alu_a = 1;
-         alu_b = 1;
+//         alu_a = 1;
+//         alu_b = 1;
      #10 instruction[31:26]=6'b000000;//srl
          instruction[5:0]  =6'b000010;
-         alu_a = 2;
-         alu_b = 1;
+//         alu_a = 2;
+//         alu_b = 1;
      #10 instruction[31:26]=6'b000000;//sra
          instruction[5:0]  =6'b000011;
-         alu_a = 32'h80000000;
-         alu_b = 1;
+//         alu_a = 32'h80000000;
+//         alu_b = 1;
 //     #10 instruction[31:26]=6'b000000;
 //         instruction[5:0]  =6'b000100;
 //     #10 instruction[31:26]=6'b000000;
@@ -228,8 +228,8 @@ module test_sim();
 //     #10 instruction = {6'b001101 ,20'b0,6'b0};
 //     #10 instruction = {6'b001110 ,20'b0,6'b0};
      #10 instruction = {6'b001111 ,20'b0,6'b0};//lui
-         alu_a = 0;
-         alu_b = 32'h0000ffff;
+//         alu_a = 0;
+//         alu_b = 32'h0000ffff;
 //     #10 instruction = {6'b100000 ,20'b0,6'b0};
 //     #10 instruction = {6'b100100 ,20'b0,6'b0};
 //     #10 instruction = {6'b100001 ,20'b0,6'b0};
