@@ -26,19 +26,19 @@ sel,
 out
     );
     
-    input [31:0] in0;
-    input [31:0] in1;
-    input [31:0] in2;
-    input [31:0] in3;
-    input [31:0] in4;
-    input [31:0] in5;
-    input [31:0] in6;
-    input [31:0] in7;
-    input [2:0] sel;
+    input[31:0] in0;
+    input[31:0] in1;
+    input[31:0] in2;
+    input[31:0] in3;
+    input[31:0] in4;
+    input[31:0] in5;
+    input[31:0] in6;
+    input[31:0] in7;
+    input[2:0] sel;
     
     output reg[31:0] out;
 
-	 always @ (sel or in0 or in1 or in2 or in3 or in4 or in5 or in6 or in7 )
+	 always @ (sel)
 	 	begin
 			case(sel)
 			2'b000:out = in0;

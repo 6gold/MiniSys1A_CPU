@@ -1,7 +1,7 @@
 module regfile_dataflow(rna,rnb,d,wn,we,clk,clrn,qa,qb);
 	input [4:0] rna,rnb,wn;
 	input [31:0] d;
-	input		we,clk,clrn;
+	input we,clk,clrn;
 	
 	output [31:0] qa,qb;
 	

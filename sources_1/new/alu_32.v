@@ -58,15 +58,15 @@ module alu_32(
         
     /* 逻辑运算 */
     //op_and,op_or,op_xor,op_nor,op_andi,op_ori,op_xori,op_lui,
-      wire [31:0] and_res,or_res,nor_res,xor_res;
-       assign and_res = alu_a & alu_b;
-       assign or_res = alu_a | alu_b;
-       assign nor_res = ~(alu_a | alu_b);
-       assign xor_res = alu_a ^ alu_b;
+    wire [31:0] and_res,or_res,nor_res,xor_res;
+    assign and_res = alu_a & alu_b;
+    assign or_res = alu_a|alu_b;
+    assign nor_res = ~(alu_a|alu_b);
+    assign xor_res = alu_a^alu_b;
     
     //完成lui指令
     wire [31:0] lui_res;
-    assign lui_res = {alu_b[15:0],16'b0}; 
+    assign alu_b = {alu_b[15:0],16'b0}; 
     
     //桶型移位器例化
     //完成op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav功能
@@ -80,7 +80,7 @@ module alu_32(
     
     //加减法器例化
     //完成op_add,op_addu,op_sub,op_subu,op_addi,op_addiu功能
-   wire [31:0] add_res;
+    wire [31:0] add_res;
     wire add_of;
     addsub_32 addsub(
         .a(alu_a),

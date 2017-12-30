@@ -1,21 +1,6 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 2017/10/30 20:54:28
-// Design Name: 
-// Module Name: dff_32
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
 // Description: 32Î»D´¥·¢Æ÷
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
 //////////////////////////////////////////////////////////////////////////////////
 
 

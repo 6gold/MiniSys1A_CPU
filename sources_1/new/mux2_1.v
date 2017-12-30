@@ -25,9 +25,9 @@ module mux2_1(
     sel,
     out
     );
-    input wire[31:0] in0;
-    input wire[31:0] in1;
-    input wire sel;
+    input[31:0] in0;
+    input[31:0] in1;
+    input sel;
     
     output reg[31:0] out;
 

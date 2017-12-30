@@ -26,11 +26,11 @@ sel,
 out,
     );
     
-    input wire[31:0] in0;
-    input wire[31:0] in1;
-    input wire[31:0] in2;
-    input wire[31:0] in3;
-    input wire[1:0] sel;
+    input[31:0] in0;
+    input[31:0] in1;
+    input[31:0] in2;
+    input[31:0] in3;
+    input[1:0] sel;
     
     output reg[31:0] out;
 
