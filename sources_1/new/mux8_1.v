@@ -21,9 +21,9 @@
 
 
 module mux8_1(
-in0,in1,in2,in3,in4,in5,in6,in7,
-sel,
-out
+    in0,in1,in2,in3,in4,in5,in6,in7,
+    sel,
+    out
     );
     
     input[31:0] in0;
