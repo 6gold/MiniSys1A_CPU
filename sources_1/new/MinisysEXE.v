@@ -14,9 +14,14 @@ module MinisysEXE(
 //    regdst,alusrc,alucontrol,
     /* output（to【ID阶段】） */
     regwriteM,mem2regM,memwriteM,branchM,
+    
+    op_lbE,op_lbuE,op_lhE,op_lhuE,op_lwE,write_$31E,
+    op_beqE,op_bneE,
 //    zero,
     zeroM,carryM,overflowM,//结果零，借位进位，溢出
-    alu_outM,write_dataM,write_regM,pc_branchM     //送至MEM级的数据
+    alu_outM,write_dataM,write_regM,pc_branchM,     //送至MEM级的数据
+    pcplus4M,op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,jumpM
+    
     );
     
     input clk,clrn;
@@ -25,12 +30,15 @@ module MinisysEXE(
     input [3:0] alucontrolE;
     input [31:0] rd1E,rd2E,signImmeE,pcplus4E;
     input [4:0] rtE,rdE;
+    input op_lbE,op_lbuE,op_lhE,op_lhuE,op_lwE,write_$31E;
+    input op_beqE,op_bneE;
 
     output zeroM,carryM,overflowM;
     output regwriteM,mem2regM,branchM;
     output [3:0] memwriteM;
     output [4:0] write_regM;   
-    output [31:0] alu_outM,write_dataM,pc_branchM;
+    output [31:0] alu_outM,write_dataM,pc_branchM,pcplus4M;
+    output op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,jumpM;
     
     /* 中间变量 */
     wire zeroE;
@@ -38,8 +46,8 @@ module MinisysEXE(
     wire [4:0] write_regE;   
     assign alu_srcaE = rd1E;
     assign writr_dataE = rd2E;
-    assign alu_srcbE = alusrc ? rd2E : signImmeE;           //alusrc为0时选择rd2   
-    assign write_regE = regdst ? rtE : rdE;   //regdst位0时选择rt
+    assign alu_srcbE = alusrcE ? signImmeE : rd2E ;           //alusrc为0时选择rd2   
+    assign write_regE = regdstE ? rtE : rdE;   //regdst为1时选择rt
     
     /* 元件例化 */
     
@@ -53,6 +61,10 @@ module MinisysEXE(
         .of(overflowM), //溢出
         .zf(zeroE)      //结果是否为零
     );
+    wire beq,bne,branch;
+    assign beq = op_beqE & zeroE;
+    assign bne = op_bneE & ~zeroE;
+    assign branch = branchE | bne | beq;
     
     //addsub_32例化
     addsub_32 imme_pcplus4(
@@ -66,7 +78,7 @@ module MinisysEXE(
 
     //寄存器：存放cu产生的各控制信号、zero值、write_reg
     wire [31:0] cu_zero_writeE,cu_zero_writeM;
-    assign cu_zero_writeE = {19'b0,regwriteE,mem2regE,branchE,zeroE,write_regE,memwriteE};
+    assign cu_zero_writeE = {12'b0,op_lbE,op_lbuE,op_lhE,op_lhuE,op_lwE,write_$31E,jumpE,regwriteE,mem2regE,branch,zeroE,write_regE,memwriteE};
     dff_32 cu_zero_write_reg(
         .d(cu_zero_writeE),
         .clk(clk),
@@ -79,6 +91,7 @@ module MinisysEXE(
     assign branchM = cu_zero_writeM[10];
     assign mem2regM = cu_zero_writeM[11];
     assign regwriteM = cu_zero_writeM[12];
+    assign {op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,jumpM} = cu_zero_writeM[19:13]; 
 
     //寄存器：存alu_out
     dff_32 alu_out_reg(
@@ -104,4 +117,12 @@ module MinisysEXE(
         .q(pc_branchM)
     );
     
+    //寄存器：存pc+4
+    dff_32 pcplus4(
+        .d(pcplus4E),
+        .clk(clk),
+        .clrn(clrn),
+        .q(pcplus4M)
+    );
+
 endmodule

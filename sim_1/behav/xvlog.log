@@ -1,6 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing Verilog file "D:/MIPSfpga_Fundamentals/Xilinx/VivadoProject/SoC/cla/cla.srcs/sources_1/new/addFour.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module addFour
-INFO: [VRFC 10-2263] Analyzing Verilog file "D:/MIPSfpga_Fundamentals/Xilinx/VivadoProject/SoC/cla/cla.srcs/sim_1/new/addFour_sim.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module addFour_sim
-INFO: [VRFC 10-2263] Analyzing Verilog file "D:/MIPSfpga_Fundamentals/Xilinx/VivadoProject/SoC/cla/cla.sim/sim_1/behav/glbl.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module glbl

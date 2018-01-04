@@ -6,45 +6,49 @@
 module alu_32(
     /* input */
     //操作数
-    alu_a,alu_b,
+    alu_a,alu_b,alu_control,
     //与ALU相关的指令信号
-    op_add,op_addu,op_sub,op_subu,op_addi,op_addiu,//6条加减乘除指令信号
-    op_lb,op_lbu,op_lh,op_lhu,op_lw,op_sb,op_sh,op_sw,//8条数据加载与存储指令信号
-    op_and,op_or,op_xor,op_nor,op_andi,op_ori,op_xori,op_lui,//8条逻辑运算指令信号 
-    op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav,//6条移位指令信号
-    op_beq,op_bne,op_slt,op_slti,op_sltu,op_sltiu,//6条比较指令信号
+//    op_add,op_addu,op_sub,op_subu,op_addi,op_addiu,//6条加减乘除指令信号
+//    op_lb,op_lbu,op_lh,op_lhu,op_lw,op_sb,op_sh,op_sw,//8条数据加载与存储指令信号
+//    op_and,op_or,op_xor,op_nor,op_andi,op_ori,op_xori,op_lui,//8条逻辑运算指令信号 
+//    op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav,//6条移位指令信号
+//    op_beq,op_bne,op_slt,op_slti,op_sltu,op_sltiu,//6条比较指令信号
 
     /* output */
     q,//运算结果
     cf,of,zf,//借位和溢出
     //测试用
-    ALUctr,OPctr,SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr,
-    add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res
+//    ALUctr,OPctr,SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr,
+//    add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res
     );
     
     input [31:0] alu_a,alu_b;   //操作数
+    input [3:0] alu_control;
     output [31:0] q;            //运算结果
     output cf,of,zf;
-    input op_add,op_addu,op_sub,op_subu,op_addi,op_addiu,//6条加减乘除指令信号
-        op_lb,op_lbu,op_lh,op_lhu,op_lw,op_sb,op_sh,op_sw,//8条数据加载与存储指令信号
-        op_and,op_or,op_xor,op_nor,op_andi,op_ori,op_xori,op_lui,//8条逻辑运算指令信号 
-        op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav,//6条移位指令信号
-        op_beq,op_bne,op_slt,op_slti,op_sltu,op_sltiu;//6条比较指令信号
+//    input op_add,op_addu,op_sub,op_subu,op_addi,op_addiu,//6条加减乘除指令信号
+//        op_lb,op_lbu,op_lh,op_lhu,op_lw,op_sb,op_sh,op_sw,//8条数据加载与存储指令信号
+//        op_and,op_or,op_xor,op_nor,op_andi,op_ori,op_xori,op_lui,//8条逻辑运算指令信号 
+//        op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav,//6条移位指令信号
+//        op_beq,op_bne,op_slt,op_slti,op_sltu,op_sltiu;//6条比较指令信号
     //测试用
-    output [3:0] ALUctr;
-    output [2:0] OPctr;
-    output SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr;
-    output [31:0] add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res;
+//    output [3:0] ALUctr;
+//    output [2:0] OPctr;
+//    output SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr;
+//    output [31:0] add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res;
     
     /* ALUctr */
     wire [3:0] ALUctr;
     wire SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr;  
     wire [2:0] OPctr;
-    
-    assign ALUctr[3] = op_subu|op_beq|op_bne|op_sub|op_srl|op_srlv|op_sra|op_srav|op_slt|op_slti|op_sltu|op_sltiu;
-    assign ALUctr[2] = op_addu|op_addiu|op_lw|op_lb|op_lbu|op_lh|op_lhu|op_sb|op_sh|op_sw|op_xor|op_xori|op_nor|op_srl|op_srlv|op_sra|op_srav|op_lui;
-    assign ALUctr[1] = op_add|op_addi|op_addu|op_addiu|op_lw|op_lb|op_lbu|op_lh|op_lhu|op_sb|op_sh|op_sw|op_subu|op_beq|op_bne|op_sub|op_or|op_ori|op_xor|op_xori;
-    assign ALUctr[0] = op_subu|op_beq|op_bne|op_or|op_ori|op_xor|op_xori|op_sll|op_sllv|op_srl|op_srlv|op_lui|op_sltu|op_sltiu;
+    assign ALUctr[3] = alu_control[3];
+    assign ALUctr[2] = alu_control[2];
+    assign ALUctr[1] = alu_control[1];
+    assign ALUctr[0] = alu_control[0];
+//    assign ALUctr[3] = op_subu|op_beq|op_bne|op_sub|op_srl|op_srlv|op_sra|op_srav|op_slt|op_slti|op_sltu|op_sltiu;
+//    assign ALUctr[2] = op_addu|op_addiu|op_lw|op_lb|op_lbu|op_lh|op_lhu|op_sb|op_sh|op_sw|op_xor|op_xori|op_nor|op_srl|op_srlv|op_sra|op_srav|op_lui;
+//    assign ALUctr[1] = op_add|op_addi|op_addu|op_addiu|op_lw|op_lb|op_lbu|op_lh|op_lhu|op_sb|op_sh|op_sw|op_subu|op_beq|op_bne|op_sub|op_or|op_ori|op_xor|op_xori;
+//    assign ALUctr[0] = op_subu|op_beq|op_bne|op_or|op_ori|op_xor|op_xori|op_sll|op_sllv|op_srl|op_srlv|op_lui|op_sltu|op_sltiu;
     
     assign SUBctr   = ALUctr[3] & ~ALUctr[2];
     assign OVctr    = ~ALUctr[2] & ALUctr[1] & ~ALUctr[0];

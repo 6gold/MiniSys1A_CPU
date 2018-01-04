@@ -9,7 +9,8 @@ module MinisysMEM(
     //from【EXE阶段】
     regwriteM,mem2regM,memwriteM,branchM,
     zeroM,
-    alu_outM,write_dataM,write_regM,     
+    alu_outM,write_dataM,write_regM, 
+    op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,pcplus4M,    
     /* output */
     //to【WB阶段】
     regwriteW,      //该信号作为下一个【ID阶段】的输入
@@ -17,23 +18,27 @@ module MinisysMEM(
     alu_outW,       //alu_out作为读写存储器的地址
     read_dataW,
     write_regW,     //该组信号作为下一个【ID阶段】的输入
-    pc_srcM         //该信号作为下一个【IF阶段】的输入
+    pc_srcM,         //该信号作为下一个【IF阶段】的输入
+    write_$31W,
+    pcplus4W
     );
     
     input clk,clrn;
     input regwriteM,mem2regM,branchM,zeroM;
     input [3:0] memwriteM;
-    input [31:0] alu_outM,write_dataM;
-    input [4:0] write_regM;        
-    output regwriteW,mem2regW;
-    output [31:0] alu_outW,read_dataW;  //alu_out作为读写存储器的地址
+    input [31:0] alu_outM,write_dataM,pcplus4M;
+    input [4:0] write_regM; 
+    input op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M;
+           
+    output regwriteW,mem2regW,write_$31W,pc_srcM;
+    output [31:0] alu_outW,read_dataW,pcplus4W;  //alu_out作为读写存储器的地址
     output [4:0] write_regW;
     
-    assign pc_srcM = branchM & zeroM;
+    assign pc_srcM = branchM;
     
     /* 中间变量 */ 
     wire [31:0] read_dataM;             //读出数据
-    
+    wire [7:0] read_data3,read_data2,read_data1,read_data0;
     /* 元件例化 */
        
     //数据存储器例化
@@ -47,28 +52,28 @@ module MinisysMEM(
         .wea(memwriteM[0]),
         .addra(alu_outM[15:2]),
         .dina(write_dataM[7:0]),//小端存储
-        .douta(read_dataM[7:0])
+        .douta(read_data0[7:0])
     );    
     ram1 ram1(
         .clka(clk_reverse),
         .wea(memwriteM[1]),
         .addra(alu_outM[15:2]),
         .dina(write_dataM[15:8]),
-        .douta(read_dataM[15:8])
+        .douta(read_data1[7:0])
     );    
     ram2 ram2(
         .clka(clk_reverse),
         .wea(memwriteM[2]),
         .addra(alu_outM[15:2]),
         .dina(write_dataM[23:16]),
-        .douta(read_dataM[23:16])
+        .douta(read_data2[7:0])
     );
     ram3 ram3(
         .clka(clk_reverse),
         .wea(memwriteM[3]),
         .addra(alu_outM[15:2]),
         .dina(write_dataM[31:24]),
-        .douta(read_dataM[31:24])
+        .douta(read_data3[7:0])
     );
     
     //寄存器：存alu_outM
@@ -90,7 +95,7 @@ module MinisysMEM(
     //寄存器：存write_regM,regwriteM,mem2regM,
     wire [31:0] write_regW_32;
     dff_32 write_reg_reg(
-        .d({25'b0,regwriteM,mem2regM,write_regM}),
+        .d({24'b0,write_$31M,regwriteM,mem2regM,write_regM}),
         .clk(clk),
         .clrn(clrn),
         .q(write_regW_32)
@@ -98,5 +103,19 @@ module MinisysMEM(
     assign write_regW = write_regW_32[4:0];
     assign mem2regW = write_regW_32[5];
     assign regwriteW = write_regW_32[6];
-    
+    assign write_$31W = write_regW_32[7];
+    //lw输出32位 lh 16位符号扩展 lhu 零扩展 lb 8位符号 lbu 8位零扩展
+    wire [31:0] in0,in1;
+    extend_8 extend_8(.in(read_data0),.ExtOp(op_lbM),.result(in0));
+    extend extend(.imm({read_data1,read_data0}),.ExtOp(op_lhM),.result(in1));
+    mux4_1 mux4_1(.in0(in0),.in1(in1),.in2({read_data3,read_data2,read_data1,read_data0}),
+                  .in3({read_data3,read_data2,read_data1,read_data0}),.sel({op_lwM,(op_lhM|op_lhuM)}),.out(read_dataM));
+                  
+    //寄存器：存pc+4
+    dff_32 pcplus4(
+         .d(pcplus4M),
+         .clk(clk),
+         .clrn(clrn),
+         .q(pcplus4W)
+        );                  
 endmodule

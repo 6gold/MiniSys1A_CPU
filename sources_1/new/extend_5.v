@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2017/11/20 18:30:46
+// Create Date: 2018/01/04 00:10:21
 // Design Name: 
-// Module Name: c
+// Module Name: extend_5
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,14 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module c( alu_a,alu_b,and_res,or_res,nor_res,xor_res
+module extend_5
+(
+    input [4:0] in,
+    output reg[31:0] result
+);
 
-    );
-    input [31:0] alu_a, alu_b;
-    output wire [31:0] and_res,or_res,nor_res,xor_res;
-      assign  and_res = alu_a & alu_b;
-      assign  or_res = alu_a|alu_b;
-      assign  nor_res = ~(alu_a|alu_b);
-      assign  xor_res = alu_a^alu_b;
-    
+    always@(in)
+    begin
+        if (imm[15]&ExtOp)
+            result = {16'hffff, imm};
+        else
+            result = {16'h0000, imm};
+     end                  
 endmodule

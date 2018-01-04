@@ -5,7 +5,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module decoder(
-    instruction,//输入指令
+ //   instruction,//输入指令
+    op,func,
     op_add,op_addu,op_sub,op_subu,op_mult,op_multu,op_div,op_divu,//8条加减乘除指令信号
     op_and,op_or,op_xor,op_nor,op_addi,op_addiu,op_andi,op_ori,op_xori,op_lui,//10条逻辑运算指令信号 
     op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav,//6条移位指令信号
@@ -16,8 +17,8 @@ module decoder(
     op_break,op_syscall,//异常指令信号
     op_eret,op_mfc0,op_mtc0//特权指令信号
     );
-    input [31:0] instruction;
-    
+  //  input [31:0] instruction;
+    input wire [5:0] op,func;
     /* 一共57条指令 */
     //8条加减乘除指令
     output op_add,op_addu,op_sub,op_subu,op_mult,op_multu,op_div,op_divu;
@@ -38,14 +39,14 @@ module decoder(
     //3条特权指令
     output op_eret,op_mfc0,op_mtc0;
     
-    wire [4:0] rs,rt;
-    wire [5:0] op,func;
+ //   wire [4:0] rs,rt;
+ //   wire [5:0] op,func;
     wire nop;
     
-    assign rs   = instruction[25:21];
-    assign rt   = instruction[20:16];
-    assign op   = instruction[31:26];
-    assign func = instruction[5:0];
+//    assign rs   = instruction[25:21];
+//    assign rt   = instruction[20:16];
+//    assign op   = instruction[31:26];
+//    assign func = instruction[5:0];
     
     //R型指令
     assign nop    =    ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & ~op[0];//000000
@@ -66,8 +67,8 @@ module decoder(
     assign op_mthi  = nop & ~func[5] & func[4] & ~func[3] & ~func[2] & ~func[1] &  func[0];    //010001
     assign op_mtlo  = nop & ~func[5] & func[4] & ~func[3] & ~func[2] &  func[1] &  func[0];    //010011
     
-    assign op_mfc0  = nop & ~func[5] & func[4] & ~func[3] & ~func[2] & ~func[1] & ~func[0] & ~rs[4] & ~rs[3] & ~rs[2] & ~rs[1] & ~rs[0];//010000  00000(rs)
-    assign op_mtc0  = nop & ~func[5] & func[4] & ~func[3] & ~func[2] & ~func[1] & ~func[0] & ~rs[4] & ~rs[3] &  rs[2] & ~rs[1] & ~rs[0];//010000  00100(rs)
+//    assign op_mfc0  = nop & ~func[5] & func[4] & ~func[3] & ~func[2] & ~func[1] & ~func[0] & ~rs[4] & ~rs[3] & ~rs[2] & ~rs[1] & ~rs[0];//010000  00000(rs)
+//    assign op_mtc0  = nop & ~func[5] & func[4] & ~func[3] & ~func[2] & ~func[1] & ~func[0] & ~rs[4] & ~rs[3] &  rs[2] & ~rs[1] & ~rs[0];//010000  00100(rs)
     
     assign op_or    = nop & func[5] & ~func[4] & ~func[3] & func[2] & ~func[1] &  func[0];    //100101
     assign op_xor   = nop & func[5] & ~func[4] & ~func[3] & func[2] &  func[1] & ~func[0];    //100110

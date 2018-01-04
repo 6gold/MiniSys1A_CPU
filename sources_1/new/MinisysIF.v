@@ -17,7 +17,7 @@ module MinisysIF(
     
     /* 中间变量 */
     wire [31:0] pc;
-    assign pc = pc_srcM ? pcplus4F : pcbranchM;//pc_srcM为0时选择pcplus4F
+    assign pc = pc_srcM ? pcbranchM : pcplus4F;//pc_srcM为0时选择pcplus4F
 
     wire [31:0] pcF;    //pc寄存器输出
     //pc寄存器例化
