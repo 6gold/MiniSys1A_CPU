@@ -11,7 +11,7 @@ module multdiv_32(
     );
     
     input clk,rst;
-    input [4:0] ALU_OP;                 //{divu,div,multu,mult}
+    input [1:0] ALU_OP;                 //{divu,div,multu,mult}
     input [31:0] ALU_A,ALU_B;           //操作数
     output reg [31:0] ALU_HI,ALU_LO;    //运算结果输出，对于除法HI存放余数，LO存放商
     output reg MULTBUSY,DIVBUSY;        //忙检测控制信号
@@ -87,9 +87,9 @@ module multdiv_32(
                 MULTWRITE<=1'b0;                //mult not writing
                 DIVWRITE<=1'b0;                 //div not writing
                 MULTBUSY<=1'b0;                 //mult not busy
-                DIVBUSY<=1'b0;                  //div not busy
+                DIVBUSY<=1'b0;                    //div not busy
                 /* if multu */
-                if(ALU_OP == 5'b01110) begin
+                if(~ALU_OP[1]&ALU_OP[0]) begin
                     A<=ALU_A;
                     B<=ALU_B;
                     MULTBUSY<=1'b1;             //mult busy
@@ -97,7 +97,7 @@ module multdiv_32(
                     state<=4'b0001;             //enter S1
                 end
                 /* if mult */
-                else if(ALU_OP==5'b01101) begin
+                else if(~ALU_OP[1]&~ALU_OP[0]) begin
                     A<=ALU_A[31]?{~ALU_A[30:0]+1}:ALU_A;   //求A的原码
                     B<=ALU_B[31]?{~ALU_B[30:0]+1}:ALU_B;   //求B的原码
                     sig_result<=ALU_A[31]^ALU_B[31];       //结果符号位
@@ -108,7 +108,7 @@ module multdiv_32(
                     state<=4'b0001;     //enter S1 in the next clk
                 end
                 /* if divu (保证商和余数都为整数)*/
-                else if(ALU_OP==5'b10000) begin
+                else if(ALU_OP[1]&ALU_OP[0]) begin
                     if(ALU_B[31]) begin          //若B的最高位为1，则A/B的商只可能是0或者1
                         A<=ALU_A;
                         B<=ALU_B;
@@ -123,7 +123,7 @@ module multdiv_32(
                     end
                 end
                 /* if div */
-                else if(ALU_OP==5'b01111) begin
+                else if(ALU_OP[1]&~ALU_OP[0]) begin
                     A<=ALU_A[31]?{~ALU_A[30:0]+1}:ALU_A;    //求A的原码
                     B<=ALU_B[31]?{~ALU_B[30:0]+1}:ALU_B;    //求B的原码
                     sig_result<=ALU_A[31]^ALU_B[31];        //结果符号位

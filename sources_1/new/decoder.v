@@ -6,7 +6,7 @@
 
 module decoder(
  //   instruction,//输入指令
-    op,func,
+    op,func,rt,
     op_add,op_addu,op_sub,op_subu,op_mult,op_multu,op_div,op_divu,//8条加减乘除指令信号
     op_and,op_or,op_xor,op_nor,op_addi,op_addiu,op_andi,op_ori,op_xori,op_lui,//10条逻辑运算指令信号 
     op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav,//6条移位指令信号
@@ -19,6 +19,7 @@ module decoder(
     );
   //  input [31:0] instruction;
     input wire [5:0] op,func;
+    input wire [4:0] rt;
     /* 一共57条指令 */
     //8条加减乘除指令
     output op_add,op_addu,op_sub,op_subu,op_mult,op_multu,op_div,op_divu;
@@ -114,13 +115,13 @@ module decoder(
     
     assign op_beq   = ~op[5] & ~op[4] & ~op[3] &  op[2] & ~op[1] & ~op[0];    //000100
     assign op_bne   = ~op[5] & ~op[4] & ~op[3] &  op[2] & ~op[1] &  op[0];    //000101
-    assign op_bgez  = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] &  op[0];    //000001
-    assign op_bgtz  = ~op[5] & ~op[4] & ~op[3] &  op[2] &  op[1] &  op[0];    //000111
-    assign op_blez  = ~op[5] & ~op[4] & ~op[3] &  op[2] &  op[1] & ~op[0];    //000110
+    assign op_bgez  = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] &  op[0] & ~rt[4] & ~rt[3] & ~rt[2] & ~rt[1] & rt[0];    //000001
+    assign op_bgtz  = ~op[5] & ~op[4] & ~op[3] &  op[2] &  op[1] &  op[0] & ~rt[4] & ~rt[3] & ~rt[2] & ~rt[1] & ~rt[0];    //000111
+    assign op_blez  = ~op[5] & ~op[4] & ~op[3] &  op[2] &  op[1] & ~op[0] & ~rt[4] & ~rt[3] & ~rt[2] & ~rt[1] & ~rt[0];    //000110
     
-    assign op_bltz   = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & op[0] ;//000001   
-    assign op_bgezal = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & op[0] ;//000001    
-    assign op_bltzal = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & op[0] ;//000001 
+    assign op_bltz   = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & op[0] & ~rt[4] & ~rt[3] & ~rt[2] & ~rt[1] & ~rt[0] ;//000001   
+    assign op_bgezal = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & op[0] & rt[4] & ~rt[3] & ~rt[2] & ~rt[1] & rt[0] ;//000001    
+    assign op_bltzal = ~op[5] & ~op[4] & ~op[3] & ~op[2] & ~op[1] & op[0] & rt[4] & ~rt[3] & ~rt[2] & ~rt[1] & ~rt[0] ;//000001 
     
     assign op_slti   = ~op[5] & ~op[4] & op[3] & ~op[2] & op[1] & ~op[0];    //001010
     assign op_sltiu  = ~op[5] & ~op[4] & op[3] & ~op[2] & op[1] &  op[0];    //001011

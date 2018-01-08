@@ -6,22 +6,27 @@
 
 module CU(
     /* input */
-    op,func,
+    op,func,rt,
     /* output */
     regwriteD,mem2regD,memwriteD,jumpD,alucontrolD,alusrcD,regdstD,lwswD,
     op_lb,op_lbu,op_lh,op_lhu,op_lw,
     op_sll,op_srl,op_sra,
-    write_$31,
-    op_beq,op_bne,op_bgez,op_bgtz,op_blez,op_bltz,op_bgezal,op_bltzal 
+    write_$31,jump_rs,
+    op_beq,op_bne,op_bgez,op_bgtz,op_blez,op_bltz,op_bgezal,op_bltzal,alu_md,md,
+    op_mthi,op_mtlo,op_mfhi,op_mflo,
     );
     
     input [5:0] op,func;
+    input [4:0] rt;
     output regwriteD,mem2regD,jumpD,alusrcD,regdstD,lwswD;
     output [3:0] alucontrolD,memwriteD;
-    output  op_lb,op_lbu,op_lh,op_lhu,op_lw;
-    output  op_sll,op_srl,op_sra;
-    output write_$31;
-    output  op_beq,op_bne,op_bgez,op_bgtz,op_blez,op_bltz,op_bgezal,op_bltzal ;
+    output op_lb,op_lbu,op_lh,op_lhu,op_lw;
+    output op_sll,op_srl,op_sra;
+    output write_$31,jump_rs;
+    output op_beq,op_bne,op_bgez,op_bgtz,op_blez,op_bltz,op_bgezal,op_bltzal ;
+    output [1:0] alu_md;
+    output md;//表示是乘除法
+    output op_mthi,op_mtlo,op_mfhi,op_mflo;
 //    【CU的具体实现】
     /* 一共57条指令 */
 	//8条加减乘除指令
@@ -43,7 +48,7 @@ module CU(
 	//3条特权指令
 	wire op_eret,op_mfc0,op_mtc0;
     decoder decoder(
-    .op(op),.func(func),
+    .op(op),.func(func),.rt(rt),
    // .instruction(instruction),//输入指令
     .op_add(op_add),.op_addu(op_addu),.op_sub(op_sub),.op_subu(op_subu),.op_mult(op_mult),.op_multu(op_multu),
     .op_div(op_div),.op_divu(op_divu),//8条加减乘除指令信号
@@ -72,6 +77,7 @@ module CU(
                      | op_slti | op_sltiu | op_mfc0 ;
 //    assign branchD = op_beq | op_bne | op_bgez | op_bgtz | op_blez | op_bltz | op_bgezal | op_bltzal ;
     assign jumpD = op_jr | op_j | op_jal | op_jalr ;
+    assign jump_rs = op_jr | op_jalr;
     assign write_$31 = op_jal | op_jalr ;
     assign mem2regD = op_lw | op_lb | op_lbu | op_lh | op_lhu ;
     assign memwriteD[0] = op_sb | op_sh | op_sw ;
@@ -86,4 +92,16 @@ module CU(
     assign alucontrolD[1] = op_add|op_addi|op_addu|op_addiu|op_lw|op_lb|op_lbu|op_lh|op_lhu|op_sb|op_sh|op_sw|op_subu|op_beq|op_bne|op_sub|op_or|op_ori|op_xor|op_xori;
     assign alucontrolD[0] = op_subu|op_beq|op_bne|op_or|op_ori|op_xor|op_xori|op_sll|op_sllv|op_srl|op_srlv|op_lui|op_sltu|op_sltiu;
     
+    reg [1:0] alu_md;
+    always @ (*)begin
+      case({op_mult,op_multu,op_div,op_divu})
+      4'b1000:alu_md=2'b00;
+      4'b0100:alu_md=2'b01;
+      4'b0010:alu_md=2'b10;
+      4'b0001:alu_md=2'b11;
+      default:alu_md=2'b00;
+      endcase
+    end    
+    
+    assign md = op_mult|op_multu|op_div|op_divu;
 endmodule
