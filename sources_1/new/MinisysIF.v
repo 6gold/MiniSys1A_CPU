@@ -5,10 +5,10 @@
 
 module MinisysIF(
     /* input */
-    pc_srcM,pc_branchM,  //pc_srcM用于选择pc来源，pcbranchM是EXE执行完毕之后产生的branch地址
+    pc_srcM,pc_branchM,//pc_srcM用于选择pc来源，pcbranchM是EXE执行完毕之后产生的branch地址
     clk,clrn,load_use,jumpI,pc_jumpI,keepmdE,
     /* output */
-    instrD,pcplus4D     //to【ID阶段】
+    instrD,pcplus4D//to【ID】
     );
     
     input [31:0] pc_branchM,pc_jumpI;

@@ -28,7 +28,7 @@ module MinisysMEM(
     );
     
     input clk,clrn;
-    input regwriteM,mem2regM,branchM,zeroM;
+    input regwriteM,mem2regM,zeroM;
     input [3:0] memwriteM;
     input [31:0] alu_outM,write_dataM,pcplus4M,io_data;
     input [4:0] write_regM; 
@@ -41,8 +41,6 @@ module MinisysMEM(
     output [4:0] write_regW;
     output [31:0] hi2rdataW,lo2rdataW;
     output mfhiW,mfloW;
-    
- //   assign pc_srcM = branchM;
     
     /* 中间变量 */ 
     wire [31:0] read_dataM;             //读出数据

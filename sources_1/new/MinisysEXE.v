@@ -6,7 +6,7 @@
 module MinisysEXE(
     /* input（from【ID阶段】） */
     clk,clrn,  
-    regwriteE,mem2regE,memwriteE,branchE,jumpE,alucontrolE,alusrcE,regdstE,lwswE,//CU产生的控制信号
+    regwriteE,mem2regE,memwriteE,branchE,alucontrolE,alusrcE,//CU产生的控制信号
     rd1E,rd2E,      //alu的两个操作数    
     rsE,rtE,rdE,    //两种写入地址
     signImmeE,      //扩展后的立即数
@@ -22,19 +22,18 @@ module MinisysEXE(
 //    zero,
     zeroM,carryM,overflowM,//结果零，借位进位，溢出
     alu_outM,write_dataM,write_regM,pc_branchM,     //送至MEM级的数据
-    pcplus4M,op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,jumpM,
+    pcplus4M,op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,
     //乘除法相关
     multbusy,divbusy,multover,divover,                  //乘除法忙信号和结束信号
     mdcsE2D,mdcsE2W,keepmdE,
     mdhidataE2W,mdlodataE2W,                            //乘除法运算结果后推到WB级
-    mdhidataE2D,mdlodataE2D,                            //乘除法运算结果前推到ID级
-    rsD,//因为mthi mtlo指令需要 因此向后推一下     
+    mdhidataE2D,mdlodataE2D,                            //乘除法运算结果前推到ID级     
     hi2rdataM,lo2rdataM,
-    mfhiM,mfloM,rd1M 
+    mfhiM,mfloM,rd1M//rd1M因为mthi mtlo指令需要 因此向后推一下
     );
     
     input clk,clrn;
-    input regwriteE,mem2regE,branchE,jumpE,alusrcE,regdstE,lwswE;
+    input regwriteE,mem2regE,branchE,alusrcE;
     input [3:0] memwriteE;      //四个存储器都有独立的写控制信号
     input [3:0] alucontrolE;
     input [31:0] rd1E,rd2E,signImmeE,pcplus4E,result_to_writeW;
@@ -51,7 +50,7 @@ module MinisysEXE(
     output [3:0] memwriteM;
     output [4:0] write_regM;   
     output [31:0] alu_outM,write_dataM,pc_branchM,pcplus4M;
-    output op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,jumpM;
+    output op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M;
 
     //乘除法相关
     output multbusy,divbusy,multover,divover;                        //乘除法忙信号和结束信号
@@ -72,7 +71,6 @@ module MinisysEXE(
     mux4_1 fdb(.in0(rd2E),.in1(alu_outM),.in2(result_to_writeW),.in3(32'b0),
                .sel(fwdb),.out(alu_b));
     assign alu_srcbE = alusrcE ? signImmeE : alu_b ;           //alusrc为0时选择rd2   
- //   assign write_regE = regdstE ? rtE : rdE;   //regdst为1时选择rt
     
     /* 元件例化 */
     
@@ -103,7 +101,7 @@ module MinisysEXE(
 
     //寄存器：存放cu产生的各控制信号、zero值、write_reg
     wire [31:0] cu_zero_writeE,cu_zero_writeM;
-    assign cu_zero_writeE = {10'b0,mfhiE,mfloE,op_lbE,op_lbuE,op_lhE,op_lhuE,op_lwE,write_$31E,jumpE,regwriteE,mem2regE,branch,zeroE,write_regE,memwriteE};
+    assign cu_zero_writeE = {10'b0,mfhiE,mfloE,op_lbE,op_lbuE,op_lhE,op_lhuE,op_lwE,write_$31E,1'b0,regwriteE,mem2regE,branch,zeroE,write_regE,memwriteE};
     dff_32 cu_zero_write_reg(
         .d(cu_zero_writeE),
         .clk(clk),
@@ -116,7 +114,7 @@ module MinisysEXE(
     assign branchM = cu_zero_writeM[10];
     assign mem2regM = cu_zero_writeM[11];
     assign regwriteM = cu_zero_writeM[12];
-    assign {op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,jumpM} = cu_zero_writeM[19:13]; 
+    assign {op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M} = cu_zero_writeM[19:14]; 
     assign mfloM = cu_zero_writeM[20];
     assign mfhiM = cu_zero_writeM[21];
 

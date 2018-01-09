@@ -34,8 +34,8 @@ module mux2_1(
 	 always @ (sel)
 	 	begin
 			case(sel)
-			2'b00:out = in0;
-			2'b01:out = in1;
+			2'b0:out = in0;
+			2'b0:out = in1;
 			endcase
 		end
 endmodule

@@ -34,8 +34,11 @@ module MinisysID(
     input clk,clrn,regwriteW;
     input [4:0] write_regW;
     input [31:0] result_to_writeW;
+    input mdcsE2D,keepmdE;
+    input [31:0] mdhidataE2D,mdlodataE2D,mdhidataW,mdlodataW;
+    input mdcsW,multbusyE,multoverE,divbusyE,divoverE;
 
-    output regwriteE,mem2regE,branchE,jumpE,alusrcE;//regdstE,lwswE;
+    output regwriteE,mem2regE,branchE,alusrcE;//regdstE,lwswE;
     output [3:0] alucontrolE,memwriteE;//memwriteE为4位，因为4个存储器各自有独立的写控制信号
     output [31:0] rd1E,rd2E,signImmeE,pcplus4E,pc_jumpI;
     output [4:0] rsE,rtE,rdE,write_regE;
@@ -46,7 +49,7 @@ module MinisysID(
     output mdE;//表示是乘除法
     output MDPause;//乘除法阻塞信号
     output [31:0] hi2rdataE,lo2rdataE;
-    output mfhiE,mfloE;
+    output mfhiE,mfloE,jumpI;
     
     assign mfhiE = op_mfhi;
     assign mfloE = op_mflo;
@@ -210,11 +213,11 @@ module MinisysID(
     wire cshi,cslo;                                         //HILO寄存器写使能信号
     wire [31:0] HIdataout,Lodataout;                        //乘除法寄存器数据读出
     wire [31:0] whidata,wlodata;                            //写入HILO的数据
-    assign cshi = wbmdcs|op_mthi;                           //HI写使能
-    assign cslo = wbmdcs|op_mtlo;                           //LO写使能
-    assign whidata = op_mthi ? rd1E:wbwhidata;             //写HI数据,如果mthi或者mtlo与来自写回阶段的MD运算结果同时写回HILO属于写后写相关，
+    assign cshi = mdcsW|op_mthi;                           //HI写使能
+    assign cslo = mdcsW|op_mtlo;                           //LO写使能
+    assign whidata = op_mthi ? rd1E:mdhidataW;             //写HI数据,如果mthi或者mtlo与来自写回阶段的MD运算结果同时写回HILO属于写后写相关，
                                                             //由于mtlo及mthi在译码阶段，优先级高，直接写mthi的结果（mthi和mtlo执行仅需2个时钟周期）    
-    assign wlodata = op_mtlo ? rd1E:wbwlodata;             //写LO数据，在mthi或mtlo与写回阶段的MD运算之间的指令想要或得MD运算结果，可以通过转发的
+    assign wlodata = op_mtlo ? rd1E:mdlodataW;             //写LO数据，在mthi或mtlo与写回阶段的MD运算之间的指令想要或得MD运算结果，可以通过转发的
                                                             //方式获取，因此此种方式不会出现读写数据错误
                                                             //rd1E为解决数据相关后的rs（操作数a）的数据
     HILOreg HILOreg(
@@ -227,22 +230,22 @@ module MinisysID(
     assign MDPause = (multoverE||divoverE)?1'b0:((op_mfhi|op_mflo|mdD) & keepmdE);   //运行乘除法时需要阻塞的情况
     reg [31:0] hisrcs,losrcs;        						//mflo和mfhi指令取到的操作数
     //HI寄存器的数据相关
-    always @(op_mfhi,mdcsE2D,mdcsW,mulbusyE,divbusyE,mdhidataE2D,mdhidataW,HIdataout) begin
+    always @(op_mfhi,mdcsE2D,mdcsW,multbusyE,divbusyE,mdhidataE2D,mdhidataW,HIdataout) begin
         if(mdcsE2D && op_mfhi) begin                                    //数据来自exe级
             hisrcs <= mdhidataE2D;
         end else if(mdcsW && op_mfhi) begin                            //数据来自wb级但仍未来得及写到HI
             hisrcs <= mdhidataW;
-        end else if(((!mulbusyE)&&(!divbusyE)) && op_mfhi) begin     //数据来自HI寄存器
+        end else if(((!multbusyE)&&(!divbusyE)) && op_mfhi) begin     //数据来自HI寄存器
             hisrcs <= HIdataout;
         end
     end
     //LO寄存器的数据相关
-    always @(op_mflo,mdcsE2D,mdcsW,mulbusyE,divbusyE,mdlodataE2D,mdlodataW,Lodataout) begin
+    always @(op_mflo,mdcsE2D,mdcsW,multbusyE,divbusyE,mdlodataE2D,mdlodataW,Lodataout) begin
     if(mdcsE2D && op_mflo) begin                                     //数据来自exe级
         losrcs <= mdlodataE2D;
     end else if(mdcsW && op_mflo) begin                             //数据来自wb级但仍未来得及写回LO
         losrcs <= mdlodataW;
-    end else if(((!mulbusyE)&&(!divbusyE)) && op_mflo) begin     //数据来自LO寄存器
+    end else if(((!multbusyE)&&(!divbusyE)) && op_mflo) begin     //数据来自LO寄存器
         losrcs <= Lodataout;
     end
     end
@@ -255,7 +258,7 @@ module MinisysID(
     dff_32 lo2reg(.d(losrcsel),.clk(clk),.clrn(rst),.q(lo2rdataE));
     
     //直接跳转
-    output [31:0] pc_jumpI;
+//    output [31:0] pc_jumpI;前面已经定义过了
     wire [31:0] pc_jump;
     assign pc_jump = jump_rs ? rd11 : {14'b0,imme,2'b00};
     dff_32 jump_reg(

@@ -1,0 +1,70 @@
+memory_initialization_radix = 2;
+memory_initialization_vector =
+//R-type
+00000000,//add		000000 rs    rt    rd    00000 100000
+00000000,//addu		000000 rs    rt    rd    00000 100001
+00000000,//sub		000000 rs    rt    rd    00000 100010
+00000000,//subu		000000 rs    rt    rd    00000 100011
+
+00000000,//and		000000 rs    rt    rd    00000 100100
+00000000,//or		000000 rs    rt    rd    00000 100101
+00000000,//xor		000000 rs    rt    rd    00000 100110
+00000000,//nor		000000 rs    rt    rd    00000 100111
+
+00000000,//slt		000000 rs    rt    rd    00000 101010
+00000000,//sltu		000000 rs    rt    rd    00000 101011
+00000000,//sll		000000 00000 rt    rd    shamt 000000
+00000000,//srl		000000 00000 rt    rd    shamt 000010
+00000000,//sra		000000 00000 rt    rd    shamt 000011
+00000000,//sllv		000000 rs    rt    rd    00000 000100
+00000000,//srlv		000000 rs    rt    rd    00000 000110
+00000000,//srav		000000 rs    rt    rd    00000 000111
+
+00000000,//mult		000000 rs    rt    00000 00000 011000
+00000000,//multu	000000 rs    rt    00000 00000 011001
+00000000,//div		000000 rs    rt    00000 00000 011010
+00000000,//divu		000000 rs    rt    00000 00000 011011
+
+00000000,//mfhi		000000 00000 00000 rd    00000 010000
+00000000,//mflo		000000 00000 00000 rd    00000 010010
+00000000,//mthi		000000 rs    00000 00000 00000 010001
+00000000,//mtlo		000000 rs    00000 00000 00000 010011
+
+00000000,//mfc0		010000 00000 rt    rd    00000 000sel
+00000000,//mtc0		010000 00100 rt    rd    00000 000sel
+
+00000000,//jr		000000 rs    00000 00000 00000 001000
+00000000,//jalr		000000 rs    00000 rd    00000 001001
+00000000,//break    000000 code                    001101
+00000000,//syscall  000000 code                    001100
+00000000,//eret		010000 10000 00000 00000 00000 011000
+
+//I-type
+00000000,//addi		001000 rs    rt    immediate
+00000000,//addiu    001001 rs    rt    immediate
+00000000,//andi		001100 rs    rt    immediate
+00000000,//ori		001101 rs    rt    immediate
+00000000,//xori		001110 rs    rt    immediate
+00000000,//lui		001111 00000 rt    immediate
+00000000,//lb		100000 rs    rt    offset
+00000000,//lbu		100100 rs    rt    offset
+00000000,//lh		100001 rs    rt    offset
+00000000,//lhu		100101 rs    rt    offset
+00000000,//sb		101000 rs    rt    offset
+00000000,//sh		101001 rs    rt    offset
+00000000,//lw		100011 rs    rt    offset
+00000000,//sw		101011 rs    rt    offset
+00000000,//beq		000100 rs    rt    offset
+00000000,//bne		000101 rs    rt    offset
+00000000,//bgez		000001 rs    00001 offset
+00000000,//bgtz		000111 rs    00000 offset
+00000000,//blez		000110 rs    00000 offset
+00000000,//bltz		000001 rs    00000 offset
+00000000,//bgezal	000001 rs    10001 offset
+00000000,//bltzal	000001 rs    10000 offset
+00000000,//slti	    001010 rs    rt    immediate
+00000000,//sltiu    001011 rs    rt    immediate
+
+//J-type
+00000000,//j        000010 address
+00000000,//sltiu    000011 address
