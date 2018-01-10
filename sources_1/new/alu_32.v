@@ -16,10 +16,7 @@ module alu_32(
 
     /* output */
     q,//运算结果
-    cf,of,zf,//借位和溢出
-    //测试用
-//    ALUctr,OPctr,SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr,
-//    add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res
+    cf,of,zf//借位和溢出
     );
     
     input [31:0] alu_a,alu_b;   //操作数
@@ -107,7 +104,7 @@ module alu_32(
     //选择结果为全0或者全1
     mux2_1 mux2_1(
         .in0(32'b0),
-        .in1(32'hffffffff),
+        .in1(32'h1),
         .sel(temp),
         .out(comp_res)
     );

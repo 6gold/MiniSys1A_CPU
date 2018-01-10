@@ -27,7 +27,10 @@ module MinisysID(
     hi2rdataE,lo2rdataE,
     mfhiE,mfloE,
     //to [IF]
-    pc_jumpI,jumpI
+    pc_jumpI,jumpI,
+    /*仿真*/
+    rs,rt,rd,rd1D,rd2D,
+    rd11
     );
     
     input [31:0] instrD,pcplus4D;
@@ -50,14 +53,13 @@ module MinisysID(
     output MDPause;//乘除法阻塞信号
     output [31:0] hi2rdataE,lo2rdataE;
     output mfhiE,mfloE,jumpI;
-    
-    assign mfhiE = op_mfhi;
-    assign mfloE = op_mflo;
-    
+    output [31:0] rd11;
+
     reg load_use;
     /* 中间变量 */
     wire [5:0] op,func;
-    wire [4:0] rs,rt,rd,shamt;
+    output wire [4:0] rs,rt,rd;
+    wire [4:0] shamt;
     wire [15:0] imme;
     assign op = instrD[31:26];
     assign rs = instrD[25:21];
@@ -65,17 +67,19 @@ module MinisysID(
     assign rd = instrD[15:11];
     assign shamt = instrD[10:6];
     assign func = instrD[5:0];
+    assign imme = instrD[15:0];
     wire regwriteD,mem2regD,branchD,jumpD,alusrcD,regdstD,lwswD;
     wire [3:0] alucontrolD,memwriteD;
-    wire [31:0] rd1D,rd2D,signImmeD,pcplus4D;
+    output wire [31:0] rd1D,rd2D;
+    wire [31:0] signImmeD;
     
     //控制器例化
     wire op_lbD,op_lbuD,op_lhD,op_lhuD,op_lwD,op_loadD,op_loadE;
     wire op_sll,op_srl,op_sra;
-    wire write_$31,write_$31D,branch;
+    wire write_$31D,branch;
     wire op_beqD,op_bneD,op_bgez,op_bgtz,op_blez,op_bltz,op_bgezal,op_bltzal,op_mthi,op_mtlo,op_mfhi,op_mflo;
     wire [1:0] alu_mdD;
-    wire mdD,op_jal,jump_rs;
+    wire mdD,op_jal,jump_rs,sign_extend;
     CU controller(
         //输入
         .op(op),.func(func),.rt(rt),
@@ -83,15 +87,19 @@ module MinisysID(
         .regwriteD(regwriteD),.mem2regD(mem2regD),.memwriteD(memwriteD),//.branchD(branch),
         .jumpD(jumpD),.alucontrolD(alucontrolD),.alusrcD(alusrcD),.regdstD(regdstD),.lwswD(lwswD),
         .op_lb(op_lbD),.op_lbu(op_lbuD),.op_lh(op_lhD),.op_lhu(op_lhuD),.op_lw(op_lwD),
-        .op_sll(op_sll),.op_srl(op_srl),.op_sra(op_sra),
-        .write_$31(write_$31),.op_beq(op_beqD),.op_bne(op_bneD),.op_bgez(op_bgez),
+        .op_sll(op_sll),.op_srl(op_srl),.op_sra(op_sra),.sign_extend(sign_extend),
+        .op_jal(op_jal),.op_beq(op_beqD),.op_bne(op_bneD),.op_bgez(op_bgez),
         .op_bgtz(op_bgtz),.op_blez(op_blez),.op_bltz(op_bltz),.op_bgezal(op_bgezal),
         .op_bltzal(op_bltzal),.alu_md(alu_mdD),.md(mdD),
         .op_mthi(op_mthi),.op_mtlo(op_mtlo),.op_mfhi(op_mfhi),.op_mflo(op_mflo),.jump_rs(jump_rs)
           //      【控制器里面要调用decoder并根据decoder的输出产生regwriteD等信号】
     );
+    wire mfhiD,mfloD;
+    assign mfhiD = op_mfhi;
+    assign mfloD = op_mflo;
     
     //32*32bit寄存器堆例化
+    wire [31:0] rd11;    
     regfile_dataflow regfile(
         .rna(rs),
         .rnb(rt),
@@ -102,35 +110,34 @@ module MinisysID(
         .clrn(clrn),
         .qa(rd11),
         .qb(rd2D)
-    );
-    wire [31:0] rd11;
-    wire move;
-    assign move = op_sra | op_sll | op_srl;
+    ); 
+    wire move;   
+    assign move = (op_sra | op_sll | op_srl) ? 1 : 0;
     assign rd1D = move?{27'b0,shamt}:rd11;
     
     wire zero,bgez,bgtz,blez,bltz,bgezal,bltzal,bge_bltzal;
-    assign zero = (rd1D == 32'b0) ? 1 : 0;
-    assign bgez = op_bgez & ~rd1D[31];
-    assign bgtz = op_bgtz & ~rd1D[31] & ~zero;
-    assign blez = op_blez & rd1D[31] | zero;
-    assign bltz = op_bltz & rd1D[31];
-    assign bgezal = op_bgezal & ~rd1D[31];
-    assign bltzal = op_bltzal & rd1D[31];
+    assign zero = (rd11 == 32'b0) ? 1 : 0;
+    assign bgez = (op_bgez & ~rd11[31]) ? 1 : 0;
+    assign bgtz = (op_bgtz & ~rd11[31] & ~zero) ? 1 : 0;
+    assign blez = (op_blez & (rd11[31] | zero)) ? 1 : 0;
+    assign bltz = (op_bltz & rd11[31]) ? 1 : 0;
+    assign bgezal = (op_bgezal & ~rd11[31]) ? 1 : 0;
+    assign bltzal = (op_bltzal & rd11[31]) ? 1 : 0;
     
-    assign branchD = bgez | bgtz | blez | bltz | bgezal | bltzal; 
-    assign bge_bltzal = bgezal | bltzal;
-    assign write_$31D = write_$31 | bge_bltzal; 
+    assign branchD = (bgez | bgtz | blez | bltz | bgezal | bltzal) ? 1 : 0; 
+    assign bge_bltzal = (bgezal | bltzal) ? 1 : 0;
+    assign write_$31D = (op_jal | bge_bltzal) ? 1 : 0; 
     
     //16to32位扩展器例化（此处为有符号扩展）
     extend imme_extend_reg(
         .imm(imme),
-        .ExtOp(1'b1),
+        .ExtOp(sign_extend),
         .result(signImmeD)
     );
     
     //寄存器：存放cu产生的各控制信号
     wire [31:0] cu_outD,cu_outE;
-    assign cu_outD = {4'b0,op_mfhi,op_mflo,mdD,alu_mdD,op_beqD,op_bneD,op_lbD,op_lbuD,op_lhD,op_lhuD,op_lwD,write_$31D,regwriteD,mem2regD,branchD,jumpD,alusrcD,op_loadD,lwswD,alucontrolD,memwriteD};
+    assign cu_outD = {4'b0,mfhiD,mfloD,mdD,alu_mdD,op_beqD,op_bneD,op_lbD,op_lbuD,op_lhD,op_lhuD,op_lwD,write_$31D,regwriteD,mem2regD,branchD,jumpD,alusrcD,op_loadD,lwswD,alucontrolD,memwriteD};
     dff_32 cu_out_reg(
         .d(cu_outD),
         .clk(clk),
@@ -140,7 +147,6 @@ module MinisysID(
     //解析各控制信号
     assign memwriteE    = cu_outE[3:0];
     assign alucontrolE  = cu_outE[7:4];
-    assign lwswE        = cu_outE[8];
     assign op_loadE      = cu_outE[9];
     assign alusrcE      = cu_outE[10];
     assign jumpI        = cu_outE[11];
@@ -171,6 +177,7 @@ module MinisysID(
     
     //寄存器：存放rt和rd的内容
     wire [31:0] rtrdD,rtrdE;
+    wire [4:0] write_reg,write_regE;
     assign rtrdD = {12'b0,write_reg,rs,rt,rd};
     dff_32 rt_rd_reg(
         .d(rtrdD),
@@ -178,7 +185,7 @@ module MinisysID(
         .clrn(clrn),
         .q(rtrdE)
     );
-    assign write_regE = rtrdE[15:11];
+    assign write_regE = rtrdE[19:15];
     assign rsE = rtrdE[14:10];
     assign rtE = rtrdE[9:5];
     assign rdE = rtrdE[4:0];
@@ -199,7 +206,7 @@ module MinisysID(
         .q(pcplus4E)
     );
     
-    wire [4:0] write_reg,write_regE;
+    
     assign write_reg = regdstD ? rt : rd;   //regdst为1时选择rt
     //load-use 指令重复执行一次
     always @ (*) begin
@@ -213,8 +220,8 @@ module MinisysID(
     wire cshi,cslo;                                         //HILO寄存器写使能信号
     wire [31:0] HIdataout,Lodataout;                        //乘除法寄存器数据读出
     wire [31:0] whidata,wlodata;                            //写入HILO的数据
-    assign cshi = mdcsW|op_mthi;                           //HI写使能
-    assign cslo = mdcsW|op_mtlo;                           //LO写使能
+    assign cshi = (mdcsW|op_mthi) ? 1 : 0;                           //HI写使能
+    assign cslo = (mdcsW|op_mtlo) ? 1 : 0;                           //LO写使能
     assign whidata = op_mthi ? rd1E:mdhidataW;             //写HI数据,如果mthi或者mtlo与来自写回阶段的MD运算结果同时写回HILO属于写后写相关，
                                                             //由于mtlo及mthi在译码阶段，优先级高，直接写mthi的结果（mthi和mtlo执行仅需2个时钟周期）    
     assign wlodata = op_mtlo ? rd1E:mdlodataW;             //写LO数据，在mthi或mtlo与写回阶段的MD运算之间的指令想要或得MD运算结果，可以通过转发的
@@ -250,12 +257,13 @@ module MinisysID(
     end
     end
     
+    wire [31:0] hisrcsel,losrcsel;
     assign hisrcsel = MDPause ? 32'h00000000 : hisrcs;
     assign losrcsel = MDPause ? 32'h00000000 : losrcs;
 
     //ID/EXE流水线寄存器    
-    dff_32 hi2reg(.d(hisrcsel),.clk(clk),.clrn(rst),.q(hi2rdataE));
-    dff_32 lo2reg(.d(losrcsel),.clk(clk),.clrn(rst),.q(lo2rdataE));
+    dff_32 hi2reg(.d(hisrcsel),.clk(clk),.clrn(clrn),.q(hi2rdataE));
+    dff_32 lo2reg(.d(losrcsel),.clk(clk),.clrn(clrn),.q(lo2rdataE));
     
     //直接跳转
 //    output [31:0] pc_jumpI;前面已经定义过了

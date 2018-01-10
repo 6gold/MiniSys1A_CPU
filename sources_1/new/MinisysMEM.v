@@ -131,6 +131,6 @@ module MinisysMEM(
          .q(pcplus4W)
         ); 
         
-    dff_32 hi2reg(.d(hi2rdataM),.clk(clk),.clrn(rst),.q(hi2rdataW));
-    dff_32 lo2reg(.d(lo2rdataM),.clk(clk),.clrn(rst),.q(lo2rdataW));                  
+    dff_32 hi2reg(.d(hi2rdataM),.clk(clk),.clrn(clrn),.q(hi2rdataW));
+    dff_32 lo2reg(.d(lo2rdataM),.clk(clk),.clrn(clrn),.q(lo2rdataW));                  
 endmodule

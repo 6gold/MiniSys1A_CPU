@@ -21,9 +21,9 @@
 
 
 module mux4_1(
-in0,in1,in2,in3,
-sel,
-out
+    in0,in1,in2,in3,
+    sel,
+    out
     );
     
     input[31:0] in0;
@@ -34,7 +34,7 @@ out
     
     output reg[31:0] out;
 
-	 always @ (sel)
+	 always @ (*)
 	 	begin
 			case(sel)
 			2'b00:out = in0;

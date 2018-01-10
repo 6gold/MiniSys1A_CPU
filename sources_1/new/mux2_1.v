@@ -31,7 +31,7 @@ module mux2_1(
     
     output reg[31:0] out;
 
-	 always @ (sel)
+	 always @ (*)
 	 	begin
 			case(sel)
 			2'b0:out = in0;

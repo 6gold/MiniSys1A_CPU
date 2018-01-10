@@ -38,17 +38,17 @@ module mux8_1(
     
     output reg[31:0] out;
 
-	 always @ (sel)
+	 always @ (*)
 	 	begin
 			case(sel)
-			2'b000:out = in0;
-			2'b001:out = in1;
-			2'b010:out = in2;
-			2'b011:out = in3;
-			2'b100:out = in4;
-			2'b101:out = in5;
-			2'b110:out = in6;
-			2'b111:out = in7;
+			3'b000:out = in0;
+			3'b001:out = in1;
+			3'b010:out = in2;
+			3'b011:out = in3;
+			3'b100:out = in4;
+			3'b101:out = in5;
+			3'b110:out = in6;
+			3'b111:out = in7;
 			endcase
 		end
     

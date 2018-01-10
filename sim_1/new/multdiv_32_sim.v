@@ -6,7 +6,8 @@
 module multdiv_32_sim();
     //input   
     reg clk,rst=0;
-    reg [4:0] ALU_OP = 0;
+    reg md=1;
+    reg [1:0] ALU_OP = 0;
     reg [31:0] ALU_A = 0;
     reg [31:0] ALU_B = 0;
     //output
@@ -15,6 +16,7 @@ module multdiv_32_sim();
     
     //ภýปฏ
     multdiv_32 multdiv32 (
+        .md(md),
         .clk(clk),
         .rst(rst),
         .ALU_OP(ALU_OP),
@@ -38,7 +40,7 @@ module multdiv_32_sim();
     always begin
     /* if multu */
     # 10 rst=1;
-         ALU_OP = 5'b01110;
+         ALU_OP = 2'b01;
          ALU_A = 4;
          ALU_B = 5;
          
@@ -46,7 +48,7 @@ module multdiv_32_sim();
     
     /* if mult */
     # 10 rst = 1;
-         ALU_OP = 5'b01101;
+         ALU_OP = 2'b00;
          ALU_A = -4;
          ALU_B = 5;
          
@@ -54,7 +56,7 @@ module multdiv_32_sim();
     
     /* if divu */
     # 10 rst = 1;
-         ALU_OP = 5'b10000;
+         ALU_OP = 2'b11;
          ALU_A = 7;
          ALU_B = 2;
          
@@ -62,7 +64,7 @@ module multdiv_32_sim();
     
     /* if div */
     # 10 rst = 1;
-         ALU_OP = 5'b01111;
+         ALU_OP = 2'b10;
          ALU_A = -7;
          ALU_B = 2;
          

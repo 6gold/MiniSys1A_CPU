@@ -29,7 +29,8 @@ module MinisysEXE(
     mdhidataE2W,mdlodataE2W,                            //乘除法运算结果后推到WB级
     mdhidataE2D,mdlodataE2D,                            //乘除法运算结果前推到ID级     
     hi2rdataM,lo2rdataM,
-    mfhiM,mfloM,rd1M//rd1M因为mthi mtlo指令需要 因此向后推一下
+    mfhiM,mfloM,rd1M,//rd1M因为mthi mtlo指令需要 因此向后推一下
+    alu_srcaE,alu_srcbE,alu_b,fwda,fwdb,alu_outE
     );
     
     input clk,clrn;
@@ -60,18 +61,25 @@ module MinisysEXE(
 
     output [31:0] hi2rdataM,lo2rdataM,rd1M;
     output mfhiM,mfloM;
+    
+    output [31:0] alu_srcaE,alu_srcbE,alu_b,alu_outE;
 
     /* 中间变量 */
     wire zeroE;
-    wire [31:0] alu_srcaE,alu_srcbE,alu_outE,writr_dataE,pc_branchE,alu_outM;
+    reg [31:0] alu_srcbE;
+    wire [31:0] alu_srcaE,alu_outE,writr_dataE,pc_branchE,alu_outM,alu_b;
     wire [4:0] write_regE,write_regM;
+    output reg [1:0] fwda,fwdb;
     mux4_1 fda(.in0(rd1E),.in1(alu_outM),.in2(result_to_writeW),.in3(32'b0),
                .sel(fwda),.out(alu_srcaE));   
     assign writr_dataE = alu_b;
     mux4_1 fdb(.in0(rd2E),.in1(alu_outM),.in2(result_to_writeW),.in3(32'b0),
                .sel(fwdb),.out(alu_b));
-    assign alu_srcbE = alusrcE ? signImmeE : alu_b ;           //alusrc为0时选择rd2   
-    
+    //assign alu_srcbE = alusrcE ? signImmeE : alu_b ;           //alusrc为0时选择rd2   
+    always @(*)begin
+     if(alusrcE==1) alu_srcbE=signImmeE;
+     else alu_srcbE=alu_b;
+    end
     /* 元件例化 */
     
     //alu例化
@@ -162,22 +170,22 @@ module MinisysEXE(
     //wb级
     wire [31:0] result_to_writeW;
     wire [4:0] write_regD;
-    reg [1:0] fwda,fwdb;
+//    reg [1:0] fwda,fwdb;
     //EXE级 alu_outM,write_regM      rd1E,rd2E,      //alu的两个操作数    
     always @ (*)begin
       if( regwriteM && (rsE == write_regM) && ~mem2regM )
-         fwda = 2'b10 ;
-      else if( regwriteW && (rsE == write_regD) )
          fwda = 2'b01 ;
+      else if( regwriteW && (rsE == write_regD) )
+         fwda = 2'b10 ;
       else 
          fwda = 2'b00 ;
     end
         
     always @ (*)begin
       if( regwriteM && (rdE == write_regM) && ~mem2regM )
-         fwdb = 2'b10 ;
-      else if( regwriteW && (rdE == write_regD) )
          fwdb = 2'b01 ;
+      else if( regwriteW && (rdE == write_regD) )
+         fwdb = 2'b10 ;
       else 
          fwdb = 2'b00 ;
     end
@@ -186,6 +194,7 @@ module MinisysEXE(
     wire mdcsE;												    //HILO存储器写使能信号
     wire [31:0] mdhi,mdlo,multdivhires,multdivlores;                //乘除法运算结果
     multdiv_32 multdiv_32(
+        .md(mdE),
         .clk(clk),.rst(clrn),
         .ALU_OP(alu_mdE),.ALU_A(alu_srcaE),.ALU_B(alu_srcbE),.ALU_HI(mdhi),.ALU_LO(mdlo),
         .MULTBUSY(multbusy),.DIVBUSY(divbusy),.MULTWRITE(multover),.DIVWRITE(divover)
@@ -201,10 +210,10 @@ module MinisysEXE(
     assign mdlodataE2D = multdivlores;
     
     //乘除法运算EXE/WB流水线寄存器（不过MEM级）
-    dff_1 mdcs_reg(.d(mdcsE),.clk(clk),.clrn(rst),.q(mdcsE2W));
-    dff_32 HIRes_reg(.d(multdivhires),.clk(clk),.clrn(rst),.q(mdhidataE2W));
-    dff_32 LORes_reg(.d(multdivlores),.clk(clk),.clrn(rst),.q(mdlodataE2W));
+    dff_1 mdcs_reg(.d(mdcsE),.clk(clk),.clrn(clrn),.q(mdcsE2W));
+    dff_32 HIRes_reg(.d(multdivhires),.clk(clk),.clrn(clrn),.q(mdhidataE2W));
+    dff_32 LORes_reg(.d(multdivlores),.clk(clk),.clrn(clrn),.q(mdlodataE2W));
    
-    dff_32 hi2reg(.d(hi2rdataE),.clk(clk),.clrn(rst),.q(hi2rdataM));
-    dff_32 lo2reg(.d(lo2rdataE),.clk(clk),.clrn(rst),.q(lo2rdataM));    
+    dff_32 hi2reg(.d(hi2rdataE),.clk(clk),.clrn(clrn),.q(hi2rdataM));
+    dff_32 lo2reg(.d(lo2rdataE),.clk(clk),.clrn(clrn),.q(lo2rdataM));    
 endmodule
