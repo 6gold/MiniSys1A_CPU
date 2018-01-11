@@ -15,7 +15,7 @@ module Minisys1A_CPU_sim();
     wire [31:0] pc_jumpI;
     wire [31:0] instrD,pcplus4D,pcplus4F,pc,pcF;//to【ID】
     //【ID】
-    wire [4:0] write_regW;          //from【WB】：reg的写入地址
+    wire [4:0] write_regD;          //from【WB】：reg的写入地址
     wire [31:0] result_to_writeW;   //from【WB阶段】reg的写入数据
     wire regwriteW;                 //from【WB】reg的写使能信号
     /*EXE和WB乘除法相关结果前推*/
@@ -55,8 +55,10 @@ module Minisys1A_CPU_sim();
     wire [31:0] alu_outW,read_dataW,pcplus4W;  //alu_out作为读写存储器的地址
     //wire [31:0] hi2rdataW,lo2rdataW;
     //wire mfhiW,mfloW;
+    wire [31:0] in0,in1,read_dataM;//test
+    wire [7:0] read_data3,read_data2,read_data1,read_data0;     //test
     //【WB】 
-    wire [4:0] write_regD;
+    wire [4:0] write_regW;
     //wire [31:0] hi2regdataW,lo2regdataW;            
 
     Minisys1A_CPU Minisys1A_CPU(
@@ -69,7 +71,7 @@ module Minisys1A_CPU_sim();
         //.keepmdE(keepmdE),
         .pc_jumpI(pc_jumpI),.instrD(instrD),.pcplus4D(pcplus4D),
         .pcplus4F(pcplus4F),.pc(pc),.pcF(pcF),
-        .write_regW(write_regW),.result_to_writeW(result_to_writeW),.regwriteW(regwriteW),
+        .write_regD(write_regD),.result_to_writeW(result_to_writeW),.regwriteW(regwriteW),
         //.mdcsE2D(mdcsE2D),.mdcsW(mdcsW),
         //.multbusyE(multbusyE),.multoverE(multoverE),.divbusyE(divbusyE),.divoverE(divoverE),
         //.mdhidataE2D(mdhidataE2D),.mdlodataE2D(mdlodataE2D),.mdhidataW(mdhidataW),.mdlodataW(mdlodataW),
@@ -94,10 +96,13 @@ module Minisys1A_CPU_sim();
         .fwda(fwda),.fwdb(fwdb),.alu_outE(alu_outE),
         //【MEM】
         .mem2regW(mem2regW),.write_$31W(write_$31W),.alu_outW(alu_outW),.read_dataW(read_dataW),
-        .pcplus4W(pcplus4W),
+        .pcplus4W(pcplus4W),.write_regW(write_regW),
+        /*测试*/
+        .in0(in0),.in1(in1),.read_dataM(read_dataM),
+        .read_data3(read_data3),.read_data2(read_data2),.read_data1(read_data1),.read_data0(read_data0)
         //.hi2rdataW(hi2rdataW),.lo2rdataW(lo2rdataW),.mfhiW(mfhiW),.mfloW(mfloW), 
         //【WB】
-        .write_regD(write_regD)
+        //.write_regW(write_regW)
         //.hi2regdataW(hi2regdataW),.lo2regdataW(lo2regdataW)        
     );
     initial begin

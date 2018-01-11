@@ -71,7 +71,7 @@ module CU(
                       | op_srav | op_lui | op_slt | op_slti | op_sltu | op_sltiu | op_jal | op_bgezal | op_bltzal | op_mfhi
                       | op_mflo | op_jalr) ? 1 : 0 ;
    //选择立即数作为aluB输入
-    assign alusrcD = (op_addi | op_addiu | op_lw | op_lb | op_lbu | op_lh | op_lhu | op_sb | op_sh | op_sw | op_andi | op_ori
+    assign alusrcD = (op_addi | op_addiu | op_lw | op_lb | op_lbu | op_lh | op_lhu | op_sb | op_sh | op_sw | op_andi | op_ori | op_lui
                      | op_xori | op_slti | op_sltiu) ? 1 : 0 ;
     //数据写入rt                 
     assign regdstD = (op_addi | op_addiu | op_lw | op_lb | op_lbu | op_lh | op_lhu | op_andi | op_ori | op_xori | op_lui

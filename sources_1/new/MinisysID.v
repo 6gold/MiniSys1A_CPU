@@ -7,7 +7,7 @@ module MinisysID(
     /* input */
     instrD,pcplus4D,    //from【IF阶段】
     clk,clrn,
-    write_regW,         //【WB阶段】的写入地址：5bits
+    write_regD,         //【WB阶段】的写入地址：5bits
     result_to_writeW,   //【WB阶段】的写入数据：32bits
     regwriteW,          //【WB阶段】的写使能信号：1bits
     //EXE和WB乘除法相关结果前推
@@ -35,7 +35,7 @@ module MinisysID(
     
     input [31:0] instrD,pcplus4D;
     input clk,clrn,regwriteW;
-    input [4:0] write_regW;
+    input [4:0] write_regD;
     input [31:0] result_to_writeW;
     input mdcsE2D,keepmdE;
     input [31:0] mdhidataE2D,mdlodataE2D,mdhidataW,mdlodataW;
@@ -104,9 +104,9 @@ module MinisysID(
         .rna(rs),
         .rnb(rt),
         .d(result_to_writeW),//写入数据
-        .wn(write_regW),//写入地址
+        .wn(write_regD),//写入地址
         .we(regwriteW),//写入使能端
-        .clk(clk),
+        .clk(~clk),
         .clrn(clrn),
         .qa(rd11),
         .qb(rd2D)

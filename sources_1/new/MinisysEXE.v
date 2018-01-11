@@ -11,7 +11,7 @@ module MinisysEXE(
     rsE,rtE,rdE,    //两种写入地址
     signImmeE,      //扩展后的立即数
     pcplus4E,       //pcplus4
-    result_to_writeW,write_regE,regwriteW,
+    result_to_writeW,write_regE,regwriteW,write_regD,
     alu_mdE,mdE,//乘除法相关
     hi2rdataE,lo2rdataE,
     mfhiE,mfloE,
@@ -38,7 +38,7 @@ module MinisysEXE(
     input [3:0] memwriteE;      //四个存储器都有独立的写控制信号
     input [3:0] alucontrolE;
     input [31:0] rd1E,rd2E,signImmeE,pcplus4E,result_to_writeW;
-    input [4:0] rsE,rtE,rdE,write_regE;
+    input [4:0] rsE,rtE,rdE,write_regE,write_regD;
     input op_lbE,op_lbuE,op_lhE,op_lhuE,op_lwE,write_$31E;
     input op_beqE,op_bneE,regwriteW;
     input [1:0] alu_mdE;
@@ -72,7 +72,7 @@ module MinisysEXE(
     output reg [1:0] fwda,fwdb;
     mux4_1 fda(.in0(rd1E),.in1(alu_outM),.in2(result_to_writeW),.in3(32'b0),
                .sel(fwda),.out(alu_srcaE));   
-    assign writr_dataE = alu_b;
+    assign writr_dataE = rd2E;
     mux4_1 fdb(.in0(rd2E),.in1(alu_outM),.in2(result_to_writeW),.in3(32'b0),
                .sel(fwdb),.out(alu_b));
     //assign alu_srcbE = alusrcE ? signImmeE : alu_b ;           //alusrc为0时选择rd2   
@@ -169,7 +169,7 @@ module MinisysEXE(
      //处理数据冒险
     //wb级
     wire [31:0] result_to_writeW;
-    wire [4:0] write_regD;
+//    wire [4:0] write_regD;
 //    reg [1:0] fwda,fwdb;
     //EXE级 alu_outM,write_regM      rd1E,rd2E,      //alu的两个操作数    
     always @ (*)begin

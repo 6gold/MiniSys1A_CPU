@@ -20,7 +20,9 @@ module Minisys1A_CPU(
     op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M,alu_outM,write_dataM,pcplus4M,write_regM,
     alu_srcaE,alu_srcbE,alu_b,fwda,fwdb,alu_outE,
     //【MEM】
-    mem2regW,write_$31W,alu_outW,read_dataW,pcplus4W,hi2rdataW,lo2rdataW,mfhiW,mfloW, 
+    mem2regW,write_$31W,alu_outW,read_dataW,pcplus4W,hi2rdataW,lo2rdataW,mfhiW,mfloW,
+    /*test*/
+    in0,in1,read_data3,read_data2,read_data1,read_data0,read_dataM,
     //【WB】
     write_regD,hi2regdataW,lo2regdataW,
     rs,rt,rd,rd1D,rd2D
@@ -70,11 +72,12 @@ module Minisys1A_CPU(
     output wire mfhiE,mfloE;
     output wire [4:0] rs,rt,rd;
     output wire [31:0] rd1D,rd2D,rd11;
+    output wire [4:0] write_regD;
     MinisysID MinisysID(
         /* input */
         .instrD(instrD),.pcplus4D(pcplus4D),//from【IF】
         .clk(clk),.clrn(clrn),
-        .write_regW(write_regW),
+        .write_regD(write_regD),
         .result_to_writeW(result_to_writeW),
         .regwriteW(regwriteW),
         //EXE和WB乘除法相关结果前推
@@ -103,12 +106,12 @@ module Minisys1A_CPU(
    //【EXE】
    output wire mdcsE2W;
    output wire [31:0] mdhidataE2W,mdlodataE2W,hi2rdataM,lo2rdataM;
-   output wire mfhiM,mfloM,rd1M;
+   output wire mfhiM,mfloM;
    output wire regwriteM,mem2regM;
    output wire [3:0] memwriteM;
    output wire zeroM,carryM,overflowM;
    output wire op_lbM,op_lbuM,op_lhM,op_lhuM,op_lwM,write_$31M;
-   output wire [31:0] alu_outM,write_dataM,pcplus4M;    
+   output wire [31:0] alu_outM,write_dataM,pcplus4M,rd1M;    
    output wire [4:0] write_regM;
    output [31:0] alu_srcaE,alu_srcbE,alu_b,alu_outE;
    output [1:0] fwda,fwdb;
@@ -121,7 +124,7 @@ module Minisys1A_CPU(
         .rsE(rsE),.rtE(rtE),.rdE(rdE),  //两种写入地址
         .signImmeE(signImmeE),          //扩展后的立即数
         .pcplus4E(pcplus4E),            //pcplus4
-        .result_to_writeW(result_to_writeW),.write_regE(write_regE),.regwriteW(regwriteW),
+        .result_to_writeW(result_to_writeW),.write_regE(write_regE),.write_regD(write_regD),.regwriteW(regwriteW),
         .alu_mdE(alu_mdE),.mdE(mdE),//乘除法相关
         .hi2rdataE(hi2rdataE),.lo2rdataE(lo2rdataE),
         .mfhiE(mfhiE),.mfloE(mfloE),                
@@ -147,14 +150,16 @@ module Minisys1A_CPU(
    output wire mem2regW,write_$31W;
    output wire [31:0] alu_outW,read_dataW,pcplus4W;  //alu_out作为读写存储器的地址
    output wire [31:0] hi2rdataW,lo2rdataW;
-   output wire mfhiW,mfloW;       
+   output wire mfhiW,mfloW;
+   output [31:0] in0,in1,read_dataM;//test
+   output [7:0] read_data3,read_data2,read_data1,read_data0;     //test
    MinisysMEM MinisysMEM(
          /* input*/
          .clk(clk),.clrn(clrn),
          //from【EXE阶段】
          .regwriteM(regwriteM),.mem2regM(mem2regM),.memwriteM(memwriteM),
          .zeroM(zeroM),.io_data(io_data),
-         .alu_outM(alu_outM),.write_dataM(write_dataM),.write_regM(write_regM), 
+         .alu_outM(alu_outM),.write_dataM(write_dataM),.write_regM(write_regM),
          .op_lbM(op_lbM),.op_lbuM(op_lbuM),.op_lhM(op_lhM),.op_lhuM(op_lhuM),.op_lwM(op_lwM),
          .write_$31M(write_$31M),.pcplus4M(pcplus4M),
          .hi2rdataM(hi2rdataM),.lo2rdataM(lo2rdataM),
@@ -168,11 +173,13 @@ module Minisys1A_CPU(
          .write_$31W(write_$31W),
          .pcplus4W(pcplus4W),
          .hi2rdataW(hi2rdataW),.lo2rdataW(lo2rdataW),
-         .mfhiW(mfhiW),.mfloW(mfloW)
+         .mfhiW(mfhiW),.mfloW(mfloW),
+         /*测试*/
+         .in0(in0),.in1(in1),.read_dataM(read_dataM),
+         .read_data3(read_data3),.read_data2(read_data2),.read_data1(read_data1),.read_data0(read_data0)
          );
     
     //【WB】
-    output wire [4:0] write_regD;
     output wire [31:0] hi2regdataW,lo2regdataW;            
     MinisysWB MinisysWB(
           /* input */   

@@ -1,7 +1,7 @@
 // Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2015.4 (win64) Build 1412921 Wed Nov 18 09:43:45 MST 2015
-// Date        : Tue Jan 09 23:44:48 2018
+// Date        : Thu Jan 11 10:55:34 2018
 // Host        : Lenovo-PC running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               D:/MIPSfpga_Fundamentals/Xilinx/VivadoProject/SoC/cla/cla.srcs/sources_1/ip/ram3/ram3_stub.v

@@ -17,6 +17,8 @@ module alu_32(
     /* output */
     q,//运算结果
     cf,of,zf//借位和溢出
+    /*仿真*/
+    //add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res,OPctr
     );
     
     input [31:0] alu_a,alu_b;   //操作数
@@ -30,9 +32,9 @@ module alu_32(
 //        op_beq,op_bne,op_slt,op_slti,op_sltu,op_sltiu;//6条比较指令信号
     //测试用
 //    output [3:0] ALUctr;
-//    output [2:0] OPctr;
+    //output [2:0] OPctr;
 //    output SUBctr,OVctr,SIGctr,RIGHTctr,ARITHctr;
-//    output [31:0] add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res;
+    //output [31:0] add_res,and_res,or_res,xor_res,nor_res,lui_res,comp_res,shift_res;
     
     /* ALUctr */
     wire [3:0] ALUctr;
@@ -67,7 +69,7 @@ module alu_32(
     
     //完成lui指令
     wire [31:0] lui_res;
-    assign alu_b = {alu_b[15:0],16'b0}; 
+    assign lui_res = {alu_b[15:0],16'b0}; 
     
     //桶型移位器例化
     //完成op_sll,op_srl,op_sra,op_sllv,op_srlv,op_srav功能

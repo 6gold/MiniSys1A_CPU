@@ -24,7 +24,9 @@ module MinisysMEM(
     write_$31W,
     pcplus4W,
     hi2rdataW,lo2rdataW,
-    mfhiW,mfloW
+    mfhiW,mfloW,
+    /*测试*/
+    in0,in1,read_data3,read_data2,read_data1,read_data0,read_dataM,clk_reverse
     );
     
     input clk,clrn;
@@ -41,6 +43,9 @@ module MinisysMEM(
     output [4:0] write_regW;
     output [31:0] hi2rdataW,lo2rdataW;
     output mfhiW,mfloW;
+    //测试
+    output [31:0] in0,in1,read_dataM;
+    output [7:0] read_data3,read_data2,read_data1,read_data0;
     
     /* 中间变量 */ 
     wire [31:0] read_dataM;             //读出数据
@@ -48,7 +53,7 @@ module MinisysMEM(
     /* 元件例化 */
        
     //数据存储器例化
-    wire clk_reverse;
+    output wire clk_reverse;
     assign clk_reverse = !clk;
     //因为使用芯片的固有延迟，RAM的地址线来不及在时钟上升沿准备好
     //使得时钟上升沿数据读出有误，所以采用反向时钟，使得读出数据比地址准备好要晚大约半个时钟
@@ -60,28 +65,28 @@ module MinisysMEM(
         .clka(clk_reverse),
         .wea(memwriteM[3]),
         .addra(alu_outM[15:2]),
-        .dina(write_data[7:0]),//小端存储
+        .dina(write_data[31:24]),//小端存储
         .douta(read_data0[7:0])
     );    
     ram1 ram1(
         .clka(clk_reverse),
         .wea(memwriteM[2]),
         .addra(alu_outM[15:2]),
-        .dina(write_data[15:8]),
+        .dina(write_data[23:16]),
         .douta(read_data1[7:0])
     );    
     ram2 ram2(
         .clka(clk_reverse),
         .wea(memwriteM[1]),
         .addra(alu_outM[15:2]),
-        .dina(write_data[23:16]),
+        .dina(write_data[15:8]),
         .douta(read_data2[7:0])
     );
     ram3 ram3(
         .clka(clk_reverse),
         .wea(memwriteM[0]),
         .addra(alu_outM[15:2]),
-        .dina(write_data[31:24]),
+        .dina(write_data[7:0]),
         .douta(read_data3[7:0])
     );
     
@@ -118,10 +123,10 @@ module MinisysMEM(
     
     //lw输出32位 lh 16位符号扩展 lhu 零扩展 lb 8位符号 lbu 8位零扩展
     wire [31:0] in0,in1;
-    extend_8 extend_8(.in(read_data0),.ExtOp(op_lbM),.result(in0));
-    extend extend(.imm({read_data1,read_data0}),.ExtOp(op_lhM),.result(in1));
-    mux4_1 mux4_1(.in0(in0),.in1(in1),.in2({read_data3,read_data2,read_data1,read_data0}),
-                  .in3({read_data3,read_data2,read_data1,read_data0}),.sel({op_lwM,(op_lhM|op_lhuM)}),.out(read_dataM));
+    extend_8 extend_8(.in(read_data3),.ExtOp(op_lbM),.result(in0));
+    extend extend(.imm({read_data2,read_data3}),.ExtOp(op_lhM),.result(in1));
+    mux4_1 mux4_1(.in0(in0),.in1(in1),.in2({read_data0,read_data1,read_data2,read_data3}),
+                  .in3({read_data0,read_data1,read_data2,read_data3}),.sel({op_lwM,(op_lhM|op_lhuM)}),.out(read_dataM));
                   
     //寄存器：存pc+4
     dff_32 pcplus4(
